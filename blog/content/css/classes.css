@@ -1,0 +1,20 @@
+.dark {
+    background: #161616;
+    color: #fff;
+    border-bottom: 1px solid #fff1;
+  }
+  
+  .archive li {
+    padding: .3em 0;
+  }
+  
+  .archive a {
+    font-size: 1.1em;
+  }
+  
+  .archive time {
+    display: inline-block;
+    font-size: 1.05em;
+    width: 6em;
+    margin: 0 .25em;
+  }
