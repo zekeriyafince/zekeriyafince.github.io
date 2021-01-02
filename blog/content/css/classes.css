@@ -18,3 +18,11 @@
     width: 6em;
     margin: 0 .25em;
   }
+
+  .code-background {
+    color:#f8f8f2;
+    background-color:#272822;
+    -moz-tab-size:4;
+    -o-tab-size:4;
+    tab-size:4
+  }

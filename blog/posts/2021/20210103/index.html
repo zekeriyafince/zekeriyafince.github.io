@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html >
+<title>/etc/crontab Dosyasında Görev Nasıl Belirlenir? | Zekeriya F. İNCE</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="canonical" href="https://zekeriyafince.github.io/blog/posts/2021/20210103/">
+<link rel="alternate" type="application/rss+xml" href="" title="Blog">
+<link rel="shortcut icon" href="../../../images/favicon-16x16.png" />
+<link rel="stylesheet" href="https://zekeriyafince.github.io/blog/content/css/theme.css">
+<link rel="stylesheet" href="https://zekeriyafince.github.io/blog/content/css/classes.css">
+
+<header class="dark">
+  <h2><a href="https://zekeriyafince.github.io/blog/">Blog</a></h2>
+  <nav>
+    
+  </nav>
+</header>
+
+<article>
+  <header>
+    <h1><a href="https://zekeriyafince.github.io/blog/posts/2021/20210103/">/etc/crontab Dosyasında Görev Nasıl Belirlenir?</a></h1>
+    <p class="meta"><time datetime="2021-01-03T00:16:33">January 3, 2021</time></p>
+  </header>
+        <p><strong>*nix</strong> sistemlerinde <strong>Crontab</strong> kuralları ile bir görevin belirlenen zaman yada zaman diliminde çalışması sağlanabilir. Görev olarak komut, uygulama veya script çalıştırılabilir.  </p>
+
+        <p>Crontab'ın düzenlenme işlemi için </p>
+        <div class="highlight"><pre class="code-background"><code class="language-shell" data-lang="shell">crontab -e</code></pre></div>
+
+        <p>Crontab kurallarındaki görevler listesi(tüm görevler)</p>
+        <div class="highlight"><pre class="code-background"><code class="language-shell" data-lang="shell">crontab -l</code></pre></div>
+
+        <p>Crontab görevlerin kaldırılması(kullanıcının crontab dosyası silinir)</p>
+        <div class="highlight"><pre class="code-background"><code class="language-shell" data-lang="shell">crontab -r</code></pre></div>
+
+        <p>Crontab görevleri belirledikten sonra sistemin işleme alınması amacıyla</p>
+        <div class="highlight"><pre class="code-background"><code class="language-shell" data-lang="shell">systemctl restart cron</code></pre></div>
+
+        <p>Crontab görev dosyası belirleme dosya biçimi</p>
+        <div class="highlight"><pre class="code-background"><code class="language-shell" data-lang="shell">
+.---------------- Dakika (0 - 59)
+|  .------------- Saat (0 - 23)
+|  |  .---------- Ayın Günleri (1 - 31)
+|  |  |  .------- Ay (1 - 12)
+|  |  |  |  .---- Haftanın Günleri (0 - 6) (Pazar=0 ya da 7)
+|  |  |  |  |
+*  *  *  *  *  komut/uygulama/script
+        </code></pre></div>
+
+            <p>Birkaç örnek vermek gerekirse;</p>
+            <ul><li>15 dakikada bir çalışması için dosya biçimi</li></ul>
+            <div class="highlight"><pre class="code-background"><code class="language-shell" data-lang="shell">*/15 * * * * zekeriyafince /home/zekeriyafince/scripts/drop-cache.sh
+
+*/15 – Her Onbeş Dakika
+* – Her Saat
+* – Her Gün
+* – Her Ay
+* – Haftanın Her Günü
+        </code></pre></div>
+
+        <ul><li>Hergün 11 ve 23 saatlerinde çalışması için dosya biçimi</li></ul>
+        <div class="highlight"><pre class="code-background"><code class="language-shell" data-lang="shell">00 11,23 * * * zekeriyafince /home/zekeriyafince/scripts/drop-cache.sh
+
+00 – Her Saat (00 Saat başlangıcı)
+11,23 – Saat 11′de ve 23′de
+* – Her Gün
+* – Her Ay
+* – Haftanın Her Günü
+        </code></pre></div>
+
+        <ul><li>Hergün saat 8 ile 17 saatleri arasında çalışması için dosya biçimi</li></ul>
+        <div class="highlight"><pre class="code-background"><code class="language-shell" data-lang="shell">00 08-17 * * * zekeriyafince /home/zekeriyafince/scripts/drop-cache.sh
+
+00 – Her Saat (00 Saat başlangıcı)
+08-17 – Saat 08′den 17′e kadarki saatlerde (08, 09, 10, 11, 12, 13, 14, 15, 16, 17)
+* – Her Gün
+* – Her Ay
+* – Haftanın Her Günü
+        </code></pre></div>
+
+        <ul><li>Haftasonu günlerinde saat 8 ile 17 saatleri arasında çalışması için dosya biçimi</li></ul>
+        <div class="highlight"><pre class="code-background"><code class="language-shell" data-lang="shell">00 08-17 * * 6,0 zekeriyafince /home/zekeriyafince/scripts/drop-cache.sh
+
+00 – Her Saat (00 Saat başlangıcı)
+08-17 – Saat 08′den 17′e kadarki saatlerde (08, 09, 10, 11, 12, 13, 14, 15, 16, 17)
+* – Her Gün
+* – Her Ay
+6,0 –  Cumartesi(6) ve Pazar(0)
+        </code></pre></div>    
+
+        <p>Siz de işinize yarayacak şekilde crontab belirleyerek yönetebilirsiniz. Crontab görevleri için <a href="https://crontab.guru/" target="_blank" rel="noreferrer noopener external" data-wpel-link="external" class="">https://crontab.guru/</a> sayfasını da öneririm.</p>
+
+</article>
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-186339448-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+</html>
