@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<title>Quartz Scheduler ile Zamanlandırılmış Görev Uygulaması | Zekeriya F. İNCE</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="canonical" href="https://zekeriyafince.com/blog/posts/2021/20210131/">
+<link rel="alternate" type="application/rss+xml" href="" title="Blog">
+<link rel="shortcut icon" href="../../../images/favicon-16x16.png" />
+<link rel="stylesheet" href="https://zekeriyafince.com/blog/content/css/classes.css">
+<link rel="stylesheet" href="https://zekeriyafince.com/blog/content/css/theme.css">
+
+<header class="dark">
+        <h2><a href="https://zekeriyafince.com/blog/">Blog</a></h2>
+        <nav>
+
+        </nav>
+</header>
+
+<article>
+        <header>
+                <h1><a href="https://zekeriyafince.com/blog/posts/2021/20210131/">Quartz Scheduler ile Zamanlandırılmış
+                                Görev Uygulaması</a></h1>
+                <p class="meta"><time datetime="2021-01-31T20:21:50">January 31, 2021</time></p>
+        </header>
+        <p>Önceki <a href="https://zekeriyafince.com/blog/posts/2021/20210103/" target="_blank"
+                        rel="noreferrer noopener external" data-wpel-link="external" class="">yazımda</a> Unix sistemler
+                baz alınarak yapılan zamanlanmış kuralları incelemiştik. Şimdi de programlama yapısında kullanımını ele
+                alacağız. <strong>Java</strong> uygulamalarında <strong>Quartz Scheduler</strong> kuralları ile bir
+                görevin belirlenen
+                zaman yada zaman diliminde çalışma işlemlerin nasıl gerçekleştirebileceğimizi inceleyeceğiz. Bir
+                uygulama yaparak verilen zamanlara göre bir görevin çalışması anında konsola mesaj yazma işlemi olacak.
+        </p>
+
+        <p>Maven projesi oluşturarak bağımlılık ekleyelim. </p>
+        <pre>
+        &lt;dependencies&gt;
+                &lt;!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz --&gt;
+                &lt;dependency&gt;
+                &lt;groupId&gt;org.quartz-scheduler&lt;/groupId&gt;
+                &lt;artifactId&gt;quartz&lt;/artifactId&gt;
+                &lt;version&gt;2.3.1&lt;/version&gt;
+                &lt;/dependency&gt;
+        &lt;/dependencies&gt;</pre>
+
+        <p>Zamanlama yapılmasında quartz-scheduler yapısını inşa edecek yardımcı class'ımızda bulunan fonksiyondaki
+                adımları
+                yapalım. </p>
+        <pre class="prettyprint highlight"><code class="language-java" data-lang="java">
+        JobKey jobKey = new JobKey("databasejob", "databasegroup");
+        </code></pre>
+        <p>JobKey ile JobDetail'i unique olarak tanımlarız. Tanımlama yapılırken iş adı ve grup adından
+                oluşturulur ve bir grupta aynı addan oluşan bir job olmayacaktır. Bu kadar özel olması ile iş adı ve
+                grup adına göre JobDetail belirler.
+        </p>
+        <pre class="prettyprint highlight"><code class="language-java" data-lang="java">
+        JobDetail job = newJob(DatabaseBackup.class)
+        .withIdentity(jobKey)
+        .build();
+        </code></pre>
+        <p>JobDetail nesnesi, Job'un Scheduler'a eklendiği sırada Quartz istemcisi tarafından oluşturulur. Aslında
+                gerçek iş örneğini tutmak yerine JobDetail ile verilen bir sınıfın örneğinin tanımıdır. Bizim
+                uygulamamızda DatabaseBackup class'ı örnektir.
+        </p>
+        <pre class="prettyprint highlight"><code class="language-java" data-lang="java">
+        ScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
+        </code></pre>
+        <p>cronExpression ifadesindeki zamanlı olarak çalıştırmak istediğimiz cron'a göre kural yapısı oluşturulmasını
+                sağlar. Bu da CronScheduleBuilder Triggerlar ve CronExpression tabanlı zamanlamaları tanımlar ifadesini
+                doğrular.
+        </p>
+        <pre class="prettyprint highlight"><code class="language-java" data-lang="java">
+        Trigger trigger = newTrigger()
+        .withIdentity("databasetrigger", "databasegroup")
+        .startNow()
+        .withSchedule(scheduleBuilder)
+        .build();
+        </code></pre>
+        <p>Triggerler, jobların planlandığı "mekanizma" dır. Birçok trigger aynı jobı işaret edebilir, ancak tek bir
+                trigger yalnızca bir jobı işaret edebilir.</p>
+        <pre class="prettyprint highlight"><code class="language-java" data-lang="java">
+        scheduleHelper.scheduler.scheduleJob(job, trigger);
+        </code></pre>
+        <p>Quartz'a oluşturulan trigger yapısını kullanarak job'ı schedule etmesi için tetikle demiş oluyoruz.</p>
+
+        <p>Zamanlanmış görev ifadesinin yazılması kuralı ise
+        <pre class="prettyprint highlight"><code class="language-java" data-lang="java">
+        String cronExpression = "saniye - dakika - saat - ayın günü - ay - ayın haftası - yıl"
+        </code></pre> şeklindedir.
+        </p>
+        <p>Tanımlanacak olan kurallardan örnek olarak aşağıdakiler ile uygulamamızda desteklenebilir. Farklı yapılar
+                olarak tüm durumların desteklenilmesi de sağlanabilir.</p>
+        <pre class="prettyprint highlight"><code class="language-java" data-lang="java">
+        cronExpression = "0 " + "0 " + "10" + " 1/1 * ? *"; // Her gün 10 saatinde çalışır.
+        cronExpression = "0 " + "25" + " 0-23 * * ? *";     // Her saatin 25. dakikasında çalışır. 
+        </code></pre>
+        <p>Zamanlandırılmış işlemi için verilen class'ımız yapısına göre job çalışmasında konsola çıktı yazması
+                sağlanıldı. </p>
+        <pre class="prettyprint highlight"><code class="language-java" data-lang="java">
+        public class DatabaseBackup implements Job {
+
+                @Override
+                public void execute(JobExecutionContext context) throws JobExecutionException {
+                    databaseBackup();
+                }
+                
+                public static  void databaseBackup() {
+                    System.out.println("database backup start");
+                    // TO DO
+                }
+            }
+        </code></pre>
+        <p>Job işlemi her tetiklenmesinde yukarıda bulunan databaseBackup() fonksiyonuna giderek işlemleri yapacaktır ve
+                bir sonraki joba kendini ayarlayacaktır. Böylelikle zamanlama ile işlemleri gerçekleştirecektir. </p>
+        <p>Genel olarak uygulama aktardığımı düşünüyorum. Sizlerde özellikle kurumsal uygulamalardaki en kritik konu
+                olan bu yapıyı belli bir saatte çalışması planlanmış batch işlemlerinde kullanabilmelisiniz. Örneğin
+                bankacılık uygulmalarında otomatik ödeme talimatlarında, günsonu işlemlerinde vs. Job Scheduler diye
+                tabir edilen araçlar ile gerçekleştirelebilir.</p>
+        <p>Umarım yazı açıklayıcı olmuştur. İyi çalışmalar dilerim.</p>
+
+        <center><a style="background: #94949422;" href="https://github.com/zekeriyafince/QuartzSchedulerExample"
+                        target="_blank" rel="noreferrer noopener external" data-wpel-link="external" class="">Projenin
+                        Kaynak Kodlarını Github Üzerinden Görüntüle</a></center>
+</article>
+
+<script>
+        (function (i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                        (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-186339448-1', 'auto');
+        ga('send', 'pageview');
+</script>
+
+
+</html>
