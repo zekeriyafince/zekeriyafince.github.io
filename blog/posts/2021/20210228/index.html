@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<title>Java Native Interface Nedir? - JNI | Zekeriya F. İNCE</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="canonical" href="https://zekeriyafince.com/blog/posts/2021/20210228/">
+<link rel="alternate" type="application/rss+xml" href="" title="Blog">
+<link rel="shortcut icon" href="https://zekeriyafince.com/blog/images/favicon-16x16.png" />
+<link rel="stylesheet" href="https://zekeriyafince.com/blog/content/css/classes.css">
+<link rel="stylesheet" href="https://zekeriyafince.com/blog/content/css/theme.css">
+
+<header class="dark">
+        <h2><a href="https://zekeriyafince.com/blog/">Blog</a></h2>
+        <nav>
+
+        </nav>
+</header>
+
+<article>
+        <header>
+                <h1><a href="https://zekeriyafince.com/blog/posts/2021/20210228/">Java Native Interface Nedir? - JNI</a>
+                </h1>
+                <p class="meta"><time datetime="2021-02-28T18:57:50">February 28, 2021</time></p>
+        </header>
+        <p>
+                Bildiğimiz gibi Java'nın temel güçlü yönlerinden biri taşınabilirliğidir. Bunu yazılan kodlarımızın
+                derlenmesi sonucunda platformdan bağımsız bayt kodu oluşmasından anlamalıyız. Bu kodlar bir <strong> Java
+                Virtual Machine</strong> çalıştırabilen herhangi bir makine veya cihazda çalışabilir ve beklediğimiz kadar
+                sorunsuz çalışacaktır.
+        </p>
+
+        <p>
+                Bununla birlikte, bazen belirli bir mimari için native olarak derlenen kodu gerçekten kullanmamız
+                gerekir. Bunun nedenleri şunlar olabilir:
+        </p>
+
+        <ul>
+                <li>Bazı donanımları kullanma ihtiyacı</li>
+                <li>Çok zorlu bir süreç için performans iyileştirmesi</li>
+                <li>Java'da yeniden yazmak yerine yeniden kullanmak istediğimiz mevcut bir kütüphane.</li>
+        </ul>
+
+        <p> JDK bu işlem için JVM'mizde çalışan bayt kodu ile native kod (genellikle C veya C++ ile yazılır)
+                arasında bir köprü sunar. İşte bu köprü araçtır JNI.
+        </p>
+
+        <p style="text-align: justify;"><img src="https://zekeriyafince.com/blog/content/upload/2021/02/jni.png" alt="JNI" class="aligncenter" ></p>
+
+        <p>
+                JNI üzerinden JVM'ye bağlanmış kodlarda bulunan bir hatanın saptanması ise en önemli
+                dezavantajlarındandır. Buna bağlı olarak daha kötüsü olan bu hata tüm sanal makine de etkili olabilecek
+                ciddi hatalara ve çökmeye yol açabilir. Genel olarak avantaj/dezavatajlarından bahsettiğimize göre bir
+                örnek ile inceleyelim.
+        </p>
+
+
+        <p>
+                CalculateMath.java dosyanın içeriği:
+        </p>
+        <pre class="prettyprint highlight"><code class="language-java" data-lang="java">
+        package sample;
+
+        public class CalculateMath {
+                static {
+                System.loadLibrary("mathlib");
+                }
+                public native int calcSquare(int n);
+        }
+        </code></pre>
+        <p>
+                Yukarıdaki sınıf, sınıfın yüklendiği anda çalıştırılacak static tanımlı blok ve bir native metod
+                deklerasyonuna sahip. Bu sınıfımızı javac ile derliyoruz.
+        </p>
+        <pre class="prettyprint highlight"><code class="language-java" data-lang="java">
+        javac -h . sample/CalculateMath.java
+        </code></pre>
+        <p>
+                Böylelikle JVM üzerinden işletilecek byte kod(CalculateMath.class dosyası) ve çağrıda bulunulan native metodun C
+                denklerasyonu(CalculateMath.h dosyası) elde ediyoruz.
+        </p>
+        <pre class="prettyprint highlight"><code class="language-java" data-lang="java">
+        #include &#60;jni.h&#62;
+        /* Header for class sample_CalculateMath */
+                        
+        #ifndef _Included_sample_CalculateMath
+        #define _Included_sample_CalculateMath
+        #ifdef __cplusplus
+        extern "C" {
+        #endif
+        /*
+         * Class:     sample_CalculateMath
+         * Method:    calcSquare
+         * Signature: (I)I
+         */
+        JNIEXPORT jint JNICALL Java_sample_CalculateMath_calcSquare
+          (JNIEnv *, jobject, jint);
+        
+        #ifdef __cplusplus
+        }
+        #endif
+        #endif
+        </code></pre>
+        <p>
+                Yukarıda JVM tarafından oluşturulan header dosyasıdır. Peki bu nasıl oldu? Java dilinde yazılan sınıf yapısı Java Sanal Makinesi (JVM)’nin içerisinde bulunan Java Native Interface (JNI) tarafında C koduna  çevrildi. Bu dosyada native metodun prototipini içeriyor. CalculateMath.c
+                adında bir C kaynak kod dosya oluşturalım.
+        </p>
+        <pre class="prettyprint highlight"><code class="language-java" data-lang="java">
+        JNIEXPORT jint JNICALL Java_sample_CalculateMath_calcSquare
+        (JNIEnv *env, jobject obj, jint num) {
+                return num * num;
+        }
+        </code></pre>
+        <p>
+                Java_sample_CalculateMath_calcSquare fonksiyonu implemente edildi. Bu adıma kadar geldiysek hepsini
+                kullanarak birleştirme işlemi kaldı.
+        </p>
+        <p>
+                Terminal kabuk komutu ile derleme işlemi için aşağıdaki komutu çalıştırmak gerekir.(Cihazınızda JDK'nın
+                kurulu olduğu klasör ile işlem yapabilirsiniz.)
+        </p>
+        <div class="highlight">
+                <pre class="code-background"><code class="language-shell" data-lang="shell">
+        gcc -fPIC -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/linux" -shared -o libmathlib.so CalculateMath.c
+        </code></pre>
+        </div>
+
+        <p>
+                Bu adımı da başarılı şekilde yaptıysak CalculateMath.java, CalculateMath.class, sample_CalculateMath.h, CalculateMath.c ve en son işlemle de libmathlib.so uzantılı dosyalar
+                mevcuttur. Çıktı dosyanızı .so yerine .dll olarak da düzenleyebilirsiniz.
+        </p>
+
+        <p>
+                Evet bu işlemler sonucunda test etmek için proje oluşturarak .so uzantılı kütüphane dosyanızda bulunan
+                fonksiyonu kullanabilirsiniz. Bu başlangıç çalışmasından yola çıkarak farklı dillerde yazılmış olan
+                kütüphanelerin Java üzerinden erişerek kullanılabilir hale getirebiliriz.
+        </p>
+
+        <p>Umarım yazı açıklayıcı olmuştur. Görüşmek üzere...</p>
+
+        <center><a style="background: #94949422;" href="https://github.com/zekeriyafince/JavaNativeCodes"
+                        target="_blank" rel="noreferrer noopener external" data-wpel-link="external" class="">Demo Projenin
+                        Kaynak Kodlarını Github Üzerinden Görüntüle</a>
+        </center>
+</article>
+
+<script>
+        (function (i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                        (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-186339448-1', 'auto');
+        ga('send', 'pageview');
+</script>
+
+
+</html>

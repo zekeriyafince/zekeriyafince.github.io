@@ -1,4 +1,4 @@
-.dark {
+  .dark {
     background: #161616;
     color: #fff;
     border-bottom: 1px solid #fff1;
@@ -26,3 +26,9 @@
     -o-tab-size:4;
     tab-size:4
   }
+
+  .aligncenter {
+    clear: both;
+    display: block;
+    margin: .8em auto;
+}
