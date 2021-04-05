@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html >
+<title>Docker Üzerinde Postgres Kullanmak | Zekeriya F. İNCE</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="canonical" href="https://zekeriyafince.com/blog/posts/2021/20210405/">
+<link rel="alternate" type="application/rss+xml" href="" title="Blog">
+<link rel="shortcut icon" href="https://zekeriyafince.com/blog/images/favicon-16x16.png" />
+<link rel="stylesheet" href="https://zekeriyafince.com/blog/content/css/theme.css">
+<link rel="stylesheet" href="https://zekeriyafince.com/blog/content/css/classes.css">
+
+<header class="dark">
+  <h2><a href="https://zekeriyafince.com/blog/">Blog</a></h2>
+  <nav>
+    
+  </nav>
+</header>
+
+<article>
+  <header>
+    <h1><a href="https://zekeriyafince.com/blog/posts/2021/20210405/">Docker Üzerinde Postgres Kullanmak</a></h1>
+    <p class="meta"><time datetime="2021-04-05T23:31:33">April 5, 2021</time></p>
+  </header>
+        <p><strong>Docker,</strong> Hub sayfasından sunduğu sayısız uygulama için kullanıcılara kullanmak istedikleri uygulamaları kurmak yerine Docker üzerinde zaten kurulmuş olan ile çalışabilmeyi sağlıyor. Docker ister geliştirme ister de test işleriniz için tercih edilerek hızlıca çalışma ortamı oluşturur. Dahası, bu projeyi macOS, Windows ve Linux dağıtımlarında çalıştırmak için Docker'ı kullanabilirsiniz. </p>
+
+        <p>Bilgisayarınızda Docker’ın kurulu olması gerekmektedir. Şayet yüklü değilse <a href="https://docs.docker.com/get-docker/" target="_blank" rel="noreferrer noopener external" data-wpel-link="external" class="">bu bağlantıya</a> giderek kurulum yapabilirsiniz. </p>
+        
+
+        <p>Kullanmak istediğimiz image‘ı Docker Hub’dan arayacağız. Bunun için ; </p>
+        <div class="highlight"><pre class="code-background"><code class="language-shell" data-lang="shell">docker search postgresql</code></pre></div>
+        <p style="text-align: justify;"><img src="https://zekeriyafince.com/blog/upload/2021/04/docker-search-postgres.JPG" alt="docker-search-postgres" class="aligncenter" ></p>
+        <p><strong>postgres</strong> adı ile bizleri karşılayan yayınlanmış official olarak da işaretlenen bir image kullanacağız.</p>
+        
+        <p>Bulunan image'ı indirmek amacıyla</p>
+        <div class="highlight"><pre class="code-background"><code class="language-shell" data-lang="shell">docker pull postgres</code></pre></div>
+        <p>İndirme işlemi bittikten sonra kontrol etmek amacıyla <code>docker images</code> kullanılabilir.</p>
+
+        <p>Eğer indirilen image kontrol ettiğinizde bir sıkıntı yok ise container oluşturma işlemi için;</p>
+        <div class="highlight"><pre class="code-background"><code class="language-shell" data-lang="shell">docker run --name &lt;CONTAINER_ADI&gt; -e POSTGRES_PASSWORD=&lt;ROOT_PAROLASI&gt; -d \
+-p 5432:5432 -v &lt;HOST'TA_HERHANGI_BIR_DIZIN&gt;:/var/lib/postgresql/data  postgres</code></pre></div>
+        
+        <p>Komut yapısını inceleyelim.</p>
+        <ul><li><code><strong>docker run</strong></code> Parametre olarak verilen image ismine göre bir container oluşturur ve istenilen komutları çalıştırır.</li></ul>
+        <ul><li><code><strong>--name</strong></code> Container adı.</li></ul>
+        <ul><li><code><strong>-e</strong></code> Envirenment variable tanımlamayı sağlar.</li></ul>
+        <ul><li><code><strong>-d</strong></code> Container'ı arkapanda oluşturur ve id'yi ekrana basar.</li></ul>
+        <ul><li><code><strong>-p</strong></code> Container portlarını açar.</li></ul>
+        <ul><li><code><strong>-v</strong></code> Container‘lar silindiğinde içindeki veriler de silinir. Volume kullanarak container içindeki bir dizini host olan bilgisayardaki bir dizin ile eşleştiriyoruz. Böylece container silindiğinde verileri kaybetmiyoruz. İlk kısım host’taki dizin, ikincisi ise container içinde eşleştirdiğimiz dizin.</li></ul>
+        <ul><li><code><strong>postgres</strong></code> İmage adı.</li></ul>
+
+        <p>Komuta gerekli alanları tanımlayarak çalıştırdığınızda container oluşturularak id'si yazılacak. Yine de kontrol etmek için <code>docker ps</code> ile kontrol edebilirsiniz.</code></p>
+        
+        <p>Postgres container çalıştığına göre psql'e de erişim sağlıyabiliriz, bunun için;</p>
+        <div class="highlight"><pre class="code-background"><code class="language-shell" data-lang="shell">docker exec -it &lt;CONTAINER_ADI&gt; psql -U &lt;KULLANICI_ADI&gt; </code></pre></div>
+
+        <p>Bu komuta da bakmak istersek:</p>
+        <ul><li><code><strong>docker exec</strong></code> Çalışan bir container içinde komut çalıştırmak için.</li></ul>
+        <ul><li><code><strong>-it</strong></code> tty terminal ile başlamasını</li></ul>
+        <ul><li><code><strong>psql -U</strong></code> psql'in komutu </li></ul>
+
+
+        <p>Postgresql container kurduğumuza göre istediğimiz veritabanını oluşturarak üzerinde çalışabiliriz. İstenilen tüm clientlar ile bağlanabiliriz. </p>
+        
+        <p>Siz de işinize yarayacak şekilde Docker yapısını kullanarak Hub'da bulunan tüm uygulama image'ları ile çalışabilirsiniz.</p>
+
+</article>
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-186339448-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+</html>
