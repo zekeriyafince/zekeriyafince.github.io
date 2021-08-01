@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html >
+<title>Uzak Sunucu Projesindeki Değişikliği Yayınlamak | Zekeriya F. İNCE</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="canonical" href="https://zekeriyafince.com/blog/posts/2021/20210801/">
+<link rel="alternate" type="application/rss+xml" href="" title="Blog">
+<link rel="shortcut icon" href="https://zekeriyafince.com/blog/images/favicon-16x16.png" />
+<link rel="stylesheet" href="https://zekeriyafince.com/blog/content/css/theme.css">
+<link rel="stylesheet" href="https://zekeriyafince.com/blog/content/css/classes.css">
+
+<header class="dark">
+  <h2><a href="https://zekeriyafince.com/blog/">Blog</a></h2>
+  <nav>
+    
+  </nav>
+</header>
+
+<article>
+  <header>
+    <h1><a href="https://zekeriyafince.com/blog/posts/2021/20210801/">Uzak Sunucu Projesinde Local Değişikliği Yayınlamak</a></h1>
+    <p class="meta"><time datetime="2021-08-01T20:31:33">August 1, 2021</time></p>
+  </header>
+        <p>Projemizde yapılan değişikliklerin staging ve commit işlemleri yaptıktan sonra tüm bu değişiklikleri projemizin stabil versiyonu olan <strong>master</strong> branch ile merge etmemiz yani entegre işlemi gerekir. </p>
+
+        <p style="text-align: justify;"><img src="https://zekeriyafince.com/blog/upload/2021/08/git.png" alt="git-push" class="aligncenter" ></p>
+
+        <p>Commit işlemi ile dosyalarınızda yapılan değişiklikler kalıcı olarak repository'de kayıt altına alınınr. Ancak günlük çalışmamızda üzerinde çalışma esnasında uzak sunucu repository'sinde bulunan değişikleri yerel diske çekme işlemi yapmak gerekebilir. Bu durumda yapılan değişiklikleri geçiçi olarak kaydedilmesi gerekir. </p>
+        
+        <p><code>git stash</code> komutu ile üzerinde çalıştığınız ancak henüz commit etmediğiniz değişikliklerin geçici olarak Git tarafından kayıt altına alınmasını ve aktif branch'inizin herhangi bir değişikliğin olmadığı temiz bir duruma getirilmesini sağlarsınız.</p>
+        
+        <p> Lokaldeki bir branch üzerindeki yaptığımız değişikleri uzak sunucuya atmadan önce yapılması gerekenler için bu komut kolaylık sağlamaktadır. Bunun için ; </p>
+        
+        <p>Git komutlarını adım adım inceleyelim.</p>
+        <ul><li><code><strong>git stash</strong></code> Lokal branchdeki yapılan değişiklikleri geçiçi olarak kaydetme.</li></ul>
+        <ul><li><code><strong>git checkout master</strong></code> Master branchine geçiş yapma</li></ul>
+        <ul><li><code><strong>git pull</strong></code> Uzak repositorydeki master branchindeki yapılan değişiklikleri lokale çekme</li></ul>
+        <ul><li><code><strong>git checkout branch</strong></code> Lokalde çalışılan branche geçiş yapma.</li></ul>
+        <ul><li><code><strong>git merge master</strong></code> Master branchindeki çekilen değişiklikleri lokaldeki branche çekme işlemi</li></ul>
+        <ul><li><code><strong>git stash pop</strong></code> Lokal branchindeki geçiçi olarak kaydedilen değişiklikleri alma</li></ul>
+        
+
+        <p>Bu adımlarla birlikte lokaldeki projemize uzak sunucudaki repository eşitlenmiş oldu. Daha sonra değişiklikleri tamamlayarak commit ve push işlemi ile yayınlanabilir. </p>
+        
+        
+</article>
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-186339448-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+</html>
